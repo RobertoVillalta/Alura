@@ -1,8 +1,13 @@
 package br.com.caelum.leilao.dominio;
 
+import br.com.caelum.leilao.builder.LeilaoBuilder;
 import java.util.List;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -12,21 +17,42 @@ import org.junit.Test;
 public class AvaliadorTest {
 
     public Leilao l = null;
+    Avaliador avaliador = null;
+    Usuario roberto = null;
+    Usuario cesar = null;
+    Usuario tadeu = null;
+    Usuario daniela = null;
+    Usuario jose = null;
+    Usuario rosa = null;
+
+    @BeforeClass
+    public static void testandoBeforeClass() {
+        System.out.println("before class");
+    }
+
+    @AfterClass
+    public static void testandoAfterClass() {
+        System.out.println("after class");
+    }
 
     @Before
     public void preparacao() {
-        l = new Leilao("XBOX ONE");
+        roberto = new Usuario("Roberto");
+        cesar = new Usuario("Cesar");
+        tadeu = new Usuario("Tadeu");
+        daniela = new Usuario("Daniela");
+        jose = new Usuario("Jose");
+        rosa = new Usuario("Rosa");
 
-        Usuario roberto = new Usuario("Roberto");
-        Usuario cesar = new Usuario("Cesar");
-        Usuario tadeu = new Usuario("Tadeu");
-
-        l.propoe(new Lance(roberto, 300.00));
-        l.propoe(new Lance(cesar, 250.00));
-        l.propoe(new Lance(tadeu, 600.00));
-        l.propoe(new Lance(tadeu, 100.00));
-        l.propoe(new Lance(tadeu, 450.00));
-
+        l = new LeilaoBuilder().para("XBOX")
+                .lance(roberto, 300.00)
+                .lance(cesar, 250.00)
+                .lance(tadeu, 600.00)
+                .lance(roberto, 100.00)
+                .lance(cesar, 450.00)
+                .constroi();
+        avaliador = new Avaliador();
+        System.out.println("inicializa teste");
     }
 
     /**
@@ -34,7 +60,6 @@ public class AvaliadorTest {
      */
     @Test
     public void testMaiorDeTodos() {
-        Avaliador avaliador = new Avaliador();
         avaliador.avalia(l);
         double resultadoEsperado = 600.0;
         double resultado = avaliador.getMaiorDeTodos();
@@ -47,7 +72,6 @@ public class AvaliadorTest {
      */
     @Test
     public void testMenorDeTodos() {
-        Avaliador avaliador = new Avaliador();
         avaliador.avalia(l);
         double resultadoEsperado = 100.0;
         double resultado = avaliador.getMenorDeTodos();
@@ -59,7 +83,6 @@ public class AvaliadorTest {
      */
     @Test
     public void testValorMedioLance() {
-        Avaliador avaliador = new Avaliador();
         double resultadoEsperado = 340.0;
         double resultado = avaliador.calcularValorMedio(l);
         assertEquals(resultadoEsperado, resultado, 0.1);
@@ -70,14 +93,10 @@ public class AvaliadorTest {
      */
     @Test
     public void testValorMaiorEMenorComUmLance() {
-        Leilao le = new Leilao("Computador");
+        Leilao le = new LeilaoBuilder().para("Computador")
+                .lance(roberto, 200.00)
+                .constroi();
 
-        Usuario roberto = new Usuario("Roberto");
-
-        Lance lan = new Lance(roberto, 200.0);
-        le.propoe(lan);
-
-        Avaliador avaliador = new Avaliador();
         avaliador.avalia(le);
 
         double resultadoEsperado = 200.0;
@@ -91,28 +110,19 @@ public class AvaliadorTest {
      */
     @Test
     public void testValorMaiorEMenorComValoresAleatorios() {
-        Leilao le = new Leilao("Impressora");
+        Leilao le = new LeilaoBuilder().para("Impressora")
+                .lance(roberto, 200.00)
+                .lance(daniela, 450.00)
+                .lance(jose, 120.00)
+                .lance(rosa, 630.00)
+                .lance(daniela, 700.00)
+                .lance(roberto, 230.00)
+                .constroi();
 
-        Usuario roberto = new Usuario("Roberto");
-        Usuario daniela = new Usuario("Daniela");
-        Usuario jose = new Usuario("Jose");
-        Usuario rosa = new Usuario("Rosa");
-
-        le.propoe(new Lance(roberto, 200.0));
-        le.propoe(new Lance(daniela, 450.0));
-        le.propoe(new Lance(jose, 120.0));
-        le.propoe(new Lance(rosa, 630.0));
-        le.propoe(new Lance(daniela, 700.0));
-        le.propoe(new Lance(roberto, 230.0));
-
-        Avaliador avaliador = new Avaliador();
         avaliador.avalia(le);
 
-        double resultadoMenorEsperado = 120.0;
-        double resultadoMaiorEsperado = 700.0;
-
-        assertEquals(resultadoMaiorEsperado, avaliador.getMaiorDeTodos(), 0.1);
-        assertEquals(resultadoMenorEsperado, avaliador.getMenorDeTodos(), 0.1);
+        assertThat(avaliador.getMaiorDeTodos(), equalTo(700.0));
+        assertThat(avaliador.getMenorDeTodos(), equalTo(120.0));       
     }
 
     /**
@@ -120,26 +130,17 @@ public class AvaliadorTest {
      */
     @Test
     public void testValorMaiorEMenorComValoresDecrescentes() {
-        Leilao le = new Leilao("Impressora");
+        Leilao le = new LeilaoBuilder().para("Impressora")
+                .lance(roberto, 400.00)
+                .lance(daniela, 300.00)
+                .lance(jose, 200.00)
+                .lance(rosa, 100.00)
+                .constroi();
 
-        Usuario roberto = new Usuario("Roberto");
-        Usuario daniela = new Usuario("Daniela");
-        Usuario jose = new Usuario("Jose");
-        Usuario rosa = new Usuario("Rosa");
-
-        le.propoe(new Lance(roberto, 400.0));
-        le.propoe(new Lance(daniela, 300.0));
-        le.propoe(new Lance(jose, 200.0));
-        le.propoe(new Lance(rosa, 100.0));
-
-        Avaliador avaliador = new Avaliador();
         avaliador.avalia(le);
 
-        double resultadoMenorEsperado = 100.0;
-        double resultadoMaiorEsperado = 400.0;
-
-        assertEquals(resultadoMaiorEsperado, avaliador.getMaiorDeTodos(), 0.1);
-        assertEquals(resultadoMenorEsperado, avaliador.getMenorDeTodos(), 0.1);
+        assertThat(avaliador.getMaiorDeTodos(), equalTo(400.0));
+        assertThat(avaliador.getMenorDeTodos(), equalTo(100.0));
     }
 
     /**
@@ -147,13 +148,14 @@ public class AvaliadorTest {
      */
     @Test
     public void testTresMaioresValores() {
-        Avaliador avaliador = new Avaliador();
         List<Lance> lance = avaliador.getMaioresValores(l);
 
         assertEquals(3, lance.size());
-        assertEquals(600.0, lance.get(0).getValor(), 0.00001);
-        assertEquals(450.0, lance.get(1).getValor(), 0.00001);
-        assertEquals(300.0, lance.get(2).getValor(), 0.00001);
+        assertThat(lance, hasItems(
+                new Lance(tadeu, 600.0),
+                new Lance(cesar, 450.0),
+                new Lance(roberto, 300.0)
+        ));
 
     }
 
@@ -162,20 +164,19 @@ public class AvaliadorTest {
      */
     @Test
     public void testDoisMaioresValores() {
-        Leilao le = new Leilao("Impressora");
+        Leilao le = new LeilaoBuilder().para("Impressora")
+                .lance(roberto, 400.00)
+                .lance(daniela, 300.00)
+                .constroi();
 
-        Usuario roberto = new Usuario("Roberto");
-        Usuario daniela = new Usuario("Daniela");
-
-        le.propoe(new Lance(roberto, 400.0));
-        le.propoe(new Lance(daniela, 300.0));
-
-        Avaliador avaliador = new Avaliador();
         List<Lance> lance = avaliador.getMaioresValores(le);
 
         assertEquals(2, lance.size());
-        assertEquals(400.0, lance.get(0).getValor(), 0.00001);
-        assertEquals(300.0, lance.get(1).getValor(), 0.00001);
+
+        assertThat(lance, hasItems(
+                new Lance(roberto, 400.0),
+                new Lance(daniela, 300.0)
+        ));
 
     }
 
@@ -184,16 +185,21 @@ public class AvaliadorTest {
      */
     @Test
     public void testSemLances() {
-        Leilao le = new Leilao("Impressora");
-
-        Usuario roberto = new Usuario("Roberto");
-        Usuario daniela = new Usuario("Daniela");
-
-        Avaliador avaliador = new Avaliador();
+        Leilao le = new LeilaoBuilder().para("XBOX").constroi();
         List<Lance> lance = avaliador.getMaioresValores(le);
 
         assertTrue(lance.isEmpty());
         assertEquals(0, lance.size());
+
+    }
+
+    /**
+     * Teste de exceção quando leilão não possui nenhum lance.
+     */
+    @Test(expected = RuntimeException.class)
+    public void testExcecaoSemLances() {
+        Leilao le = new LeilaoBuilder().para("XBOX").constroi();
+        avaliador.avalia(le);
 
     }
 

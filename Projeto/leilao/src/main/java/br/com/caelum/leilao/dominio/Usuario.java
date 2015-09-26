@@ -1,5 +1,7 @@
 package br.com.caelum.leilao.dominio;
 
+import java.util.Objects;
+
 public class Usuario {
 
     private int id;
@@ -20,6 +22,24 @@ public class Usuario {
 
     public String getNome() {
         return nome;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Usuario other = (Usuario) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        if (!Objects.equals(this.nome, other.nome)) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
-Test set: br.com.caelum.leilao.dominio.AvaliadorTest
+Test set: br.com.caelum.leilao.desafio.AnoBissextoTest
 -------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.149 sec
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 sec
